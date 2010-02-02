@@ -8,3 +8,9 @@ Pages 22 à 29, sont introduites les équations du mouvement par courbure moyenn
 
 
 = Aujol 2005 =
+
+Dans ces notes on trouve également une description succinte des équations de diffusion (pages 11 à 17) et des mouvements par courbure moyenne et AMMS (pages 17 à 21). On trouve également un schéma de discrétisation bien utile pour le mouvement par courbure moyenne (page 21).
+
+= Krissian Maladain Ayache 1996 =
+
+Là encore, on trouvera des rappels sur l'approche de Malick et Perona (pages 4-6). Les annexes offrent un contenu intéressant avec en particulier les approximations numériques et l'algorithme utilisé pages 30-34
