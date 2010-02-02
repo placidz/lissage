@@ -1,7 +1,6 @@
 Voici quelques notes sur les articles de la biblio
 
-= Faugeras et Deriche les EDP en Traitement des Images et Vision par
-Ordinateur Rapport de recherche INRIA 1995 =
+= Faugeras et Deriche 1995 =
 
 Cet article passe en revue les principales équations aux dérivées partielles (EDP) utilisées pour la restauration d'image.
 En particulier, les pages 3 à 14 présentent les équations de diffusion isotrope et anisotrope.
