@@ -7,9 +7,4 @@ En particulier, les pages 3 à 14 présentent les équations de diffusion isotro
 Pages 22 à 29, sont introduites les équations du mouvement par courbure moyenne et AMMS. Les différents axiomes ne seront pas forcément à étudier mais vous pourrez éventuellement y jeter un coup d'oeil si vous avez le temps.
 
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= Aujol 2005 =
