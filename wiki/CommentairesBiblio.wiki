@@ -1,5 +1,9 @@
 Voici quelques notes sur les articles de la biblio
 
+= Perona et Malik 1990 =
+
+C'est l'article fondateur de la diffusion anisotrope en traitement d'images. Il contient toute l'information nécessaire tant au niveau des concepts que des schémas de discrétisation.  
+
 = Faugeras et Deriche 1995 =
 
 Cet article passe en revue les principales équations aux dérivées partielles (EDP) utilisées pour la restauration d'image.
