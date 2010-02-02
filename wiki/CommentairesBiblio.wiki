@@ -1,8 +1,11 @@
 Voici quelques notes sur les articles de la biblio
 
-= Introduction =
+= Faugeras et Deriche, Les EDP en Traitement des Images et Vision par
+Ordinateur, Rapport de recherche INRIA 1995 =
 
-Add your content here.
+Cet article passe en revue les principales équations aux dérivées partielles (EDP) utilisées pour la restauration d'image.
+En particulier, les pages 3 à 14 présentent les équations de diffusion isotrope et anisotrope.
+Pages 22 à 29, sont introduites les équations du mouvement par courbure moyenne et AMMS. Les différents axiomes ne seront pas forcément à étudier mais vous pourrez éventuellement y jeter un coup d'oeil si vous avez le temps.
 
 
 = Details =
