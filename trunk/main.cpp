@@ -3,10 +3,34 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <unistd.h>
+#define NB_NV_GRIS 256
+#define NB_NV_GRIS_SOBEL 2048
+
+
 extern "C"
 {
 #include "include/OutilsPGM.h"
 }
+
+typedef struct {
+        unsigned long nb_pixels;
+        double max;
+        int classeMax;
+        int taille;
+        double *t;
+
+}Histo;
+
+
+typedef struct {
+        int taille;
+        float *coef;
+} FiltreLineaire;
+
+
+FiltreLineaire fl1;
+Histo stHisto, stHistoModif,stHistoModif2;
+
 
 #define VRAI 0
 #define FAUX 255
@@ -14,9 +38,9 @@ extern "C"
 typedef int tabTranscode[512];
 
 Image Im,Im2,Im3;          	     // Images originales
-GLubyte *I1=NULL,*I2=NULL;   // Images � afficher
-int f1,f2;		     // ID fen�tres
-int ordre=5;		     // Taille �l�ment structurant
+GLubyte *I1=NULL,*I2=NULL;   // Images à afficher
+int f1,f2;		     // ID fenetres
+int ordre=5;		     // Taille element structurant
 int k = 0;
 
 
@@ -72,6 +96,109 @@ void InitImg(Image& in){
 	}
 }
 
+
+void initHisto(Histo * _histo,int taille)
+{
+        int i;
+        _histo->taille = taille;
+        _histo->t = new double[taille];
+        for (i = 0; i< taille; i++)
+        {
+                _histo->t[i] = 0;
+        }
+}
+
+
+void calculHisto (Image * im1, Histo * _histo)
+{
+        int i,j;
+        int max, classeMax;
+        for (i = 0; i < im1->width; i++)
+                for (j = 0; j < im1->height; j++)
+                {
+                        if(_histo->taille == 2048)
+                                _histo->t[im1->data[j*im1->width+i] +1024] ++;
+                        else
+                                _histo->t[im1->data[j*im1->width+i]]++;
+                }
+        max = (int)_histo->t[0];
+        classeMax = 0;
+        for (i = 1; i< _histo->taille; i++)
+        {
+                if (_histo->t[i] > max)
+                {
+                        max = (int)_histo->t[i];
+                        classeMax = i;
+                }
+        }
+        _histo->max = max;
+        _histo->classeMax = classeMax;
+        _histo->nb_pixels = im1->size;
+}
+void expDynamique(Image *im1)
+{
+        double aMin, aMax, alpha, beta;
+        int i, j;
+
+        initHisto(&stHisto,2048);
+        calculHisto(im1, &stHisto);
+
+        aMin = stHisto.t[0];
+        // on parcours l'histo du début vers la fin, la derniere valeur non nulle est la plus haute
+        for (i = 0; i < NB_NV_GRIS_SOBEL; i++)
+        {
+                if (stHisto.t[i] != 0)
+                {
+                        aMin = i-1024;
+                        break;
+                }
+        }
+
+        // on parcours l'histo de la fin vers le debut,  la derniere valeur non nulle est la plus basse
+        for (i = NB_NV_GRIS_SOBEL-1; i >= 0;  i--)
+        {
+                if (stHisto.t[i] != 0)
+                {
+                        aMax = i-1024;
+                        break;
+                }
+        }
+
+        for (i = 0; i < im1->width; i++){
+                for (j = 0; j < im1->height ; j++){
+                    im1->data[i+j*im1->width] = (short)(255*((im1->data[i+j*im1->width] -aMin)/(aMax - aMin)));
+                }
+        }
+}
+
+
+void FiltrageLineaire(Image *in, Image *out, FiltreLineaire *fl, float t){
+        int b = (int)fl->taille/2;
+        for(int i=0;i<in->height;i++){
+                for(int j=0;j<in->width;j++){
+                        float s=0;
+                        int n=0;
+                        for(int k=i-b;k<=i+b;k++){
+                                for(int l=j-b;l<=j+b;l++){
+                                        s+=ValMiror(in,l,k)*fl->coef[n++];
+                                }
+                        }
+                        out->data[j+i*in->width] = s*t+in->data[j+i*in->width];
+                }
+        }
+}
+
+void equation_chaleur(Image * in , Image *out , FiltreLineaire *fl , int n)
+{
+	float t=10/(float)n;
+
+	for(int i = 0 ; i < n ; i++ )
+		FiltrageLineaire(in , out , fl , t);
+		CopieImg( *out , *in );
+}
+	
+	
+
 void affichage2(void)
 {
     glRasterPos2i(0,0);
@@ -105,6 +232,11 @@ void ChoixMenuPrincipal(int value)
 	switch (value)
 	{
 		case 6:
+		for (int i=0 ; i<10 ; i++)
+			equation_chaleur(&Im , &Im2 , &fl1 , 200);
+				
+		//expDynamique(&Im2);
+		BasculeImage(&Im2, I2);
 		break;
 		case 10 :// EcrireImage("res.pgm",&Im2);
 		break;
@@ -115,6 +247,8 @@ void ChoixMenuPrincipal(int value)
 		exit(0); /* On quitte */
 		break;
 	}
+	glutPostRedisplay();
+	glutSetWindow(f2);
 	glutPostRedisplay();
 }
 
@@ -161,8 +295,15 @@ int main(int argc,char **argv)
 
 	BasculeImage(&Im,I1);
 	BasculeImage(&Im,I2);
+	
+	fl1.coef = new float[9];
+	fl1.taille = 3;
+	fl1.coef[0] = 0 ;fl1.coef[1] = 1  ;fl1.coef[2] = 0;
+	fl1.coef[3] = 1 ;fl1.coef[4] = -4  ;fl1.coef[5] = 1;
+	fl1.coef[6] = 0 ;fl1.coef[7] = 1  ;fl1.coef[8] = 0;
 
-    	/*--------------------------Fen�tre 1----------------------------*/
+
+    /*--------------------------Fen�tre 1----------------------------*/
 	glutInitWindowSize(Im.width,Im.height);
 	glutInitWindowPosition(400,200);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
