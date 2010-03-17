@@ -31,6 +31,8 @@ typedef struct {
 FiltreLineaire fl1;
 Histo stHisto, stHistoModif,stHistoModif2;
 
+int nbPasses = 20;
+
 
 #define VRAI 0
 #define FAUX 255
@@ -80,7 +82,11 @@ short ValMiror(Image *d,int x,int y)
 }
 
 
-void CopieImg(Image& in, Image& out){
+void CopieImg(Image& in, Image& out)
+{
+	out.size = in.size;
+	out.width = in.width;
+	out.height = in.height;
 	for(int i=0;i<in.height;i++){
 		for(int j=0;j<in.width;j++){
 			out.data[i*Im.width+j] = in.data[i*Im.width+j];
@@ -190,11 +196,13 @@ void FiltrageLineaire(Image *in, Image *out, FiltreLineaire *fl, float t){
 
 void equation_chaleur(Image * in , Image *out , FiltreLineaire *fl , int n)
 {
-	float t=10/(float)n;
+	float t=1/(float)n;
+	
 
-	for(int i = 0 ; i < n ; i++ )
+	for(int i = 0 ; i < n ; i++ ){
 		FiltrageLineaire(in , out , fl , t);
 		CopieImg( *out , *in );
+	}
 }
 	
 	
@@ -232,11 +240,9 @@ void ChoixMenuPrincipal(int value)
 	switch (value)
 	{
 		case 6:
-		for (int i=0 ; i<10 ; i++)
-			equation_chaleur(&Im , &Im2 , &fl1 , 200);
-				
-		//expDynamique(&Im2);
-		BasculeImage(&Im2, I2);
+			equation_chaleur(&Im , &Im2 , &fl1 , nbPasses);
+			expDynamique(&Im2);
+			BasculeImage(&Im2, I2);
 		break;
 		case 10 :// EcrireImage("res.pgm",&Im2);
 		break;
@@ -270,6 +276,25 @@ void CreerMenu(void)
 	glutAddMenuEntry("Quitter",11);
 	
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+void clavier(unsigned char key, int x, int y)
+{
+	switch(key)
+	{
+		case 'p':
+			nbPasses++;
+			printf("Nombre de passes : %d\n", nbPasses);
+		break;
+		case 'm':
+			if (nbPasses > 1)
+			{
+				nbPasses--;
+				printf("Nombre de passes : %d\n", nbPasses);
+			}
+		break;
+	}
+	glutPostRedisplay();
 }
 
 int main(int argc,char **argv)
@@ -320,6 +345,7 @@ int main(int argc,char **argv)
 	f2=glutCreateWindow("Filtree");
 	glutDisplayFunc(affichage2);
 	glutReshapeFunc(redim);
+	glutKeyboardFunc(clavier);
 	initGL();
 	
 	glutMainLoop();
