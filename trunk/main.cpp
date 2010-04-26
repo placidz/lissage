@@ -45,6 +45,19 @@ int f1,f2;		     // ID fenetres
 int ordre=5;		     // Taille element structurant
 int k = 0;
 
+void affichage1(void)
+{
+    glRasterPos2i(0,0);
+    glDrawPixels(Im.width,Im.height,GL_LUMINANCE,GL_UNSIGNED_BYTE,I1);
+    glFlush();
+}
+
+void affichage2(void)
+{
+    glRasterPos2i(0,0);
+    glDrawPixels(Im2.width,Im2.height,GL_LUMINANCE,GL_UNSIGNED_BYTE,I2);
+    glFlush();
+}
 
 void BasculeImage(const Image *image, GLubyte *I)
 {
@@ -55,12 +68,7 @@ void BasculeImage(const Image *image, GLubyte *I)
      return;
 }
 
-void affichage1(void)
-{
-    glRasterPos2i(0,0);
-    glDrawPixels(Im.width,Im.height,GL_LUMINANCE,GL_UNSIGNED_BYTE,I1);
-    glFlush();
-}
+
 
 void AffecterIm(Image *d,int x,int y,short valeur)
 {
@@ -82,19 +90,21 @@ short ValMiror(Image *d,int x,int y)
 }
 
 
-void CopieImg(Image& in, Image& out)
+void CopieImg(Image* in, Image* out)
 {
-	out.size = in.size;
-	out.width = in.width;
-	out.height = in.height;
-	for(int i=0;i<in.height;i++){
-		for(int j=0;j<in.width;j++){
-			out.data[i*Im.width+j] = in.data[i*Im.width+j];
+	/*for (int i=0; i < in->size; i++)
+		out->data[i] = in->data[i];*/
+	for (int i = 0; i < in->width; i++)
+	{
+		for (int j = 0; j < in->height ; j++){
+			out->data[i+j*out->width] = in->data[i+j*in->width];
 		}
 	}
+
 }
 
-void InitImg(Image& in){
+void InitImg(Image& in)
+{
 	for(int i=0;i<in.height;i++){
 		for(int j=0;j<in.width;j++){
 			in.data[i*Im.width+j] = FAUX;
@@ -103,116 +113,116 @@ void InitImg(Image& in){
 }
 
 
-void initHisto(Histo * _histo,int taille)
+void initHisto(Histo * _histo, int taille)
 {
-        int i;
-        _histo->taille = taille;
-        _histo->t = new double[taille];
-        for (i = 0; i< taille; i++)
-        {
-                _histo->t[i] = 0;
-        }
-}
-
-
-void calculHisto (Image * im1, Histo * _histo)
-{
-        int i,j;
-        int max, classeMax;
-        for (i = 0; i < im1->width; i++)
-                for (j = 0; j < im1->height; j++)
-                {
-                        if(_histo->taille == 2048)
-                                _histo->t[im1->data[j*im1->width+i] +1024] ++;
-                        else
-                                _histo->t[im1->data[j*im1->width+i]]++;
-                }
-        max = (int)_histo->t[0];
-        classeMax = 0;
-        for (i = 1; i< _histo->taille; i++)
-        {
-                if (_histo->t[i] > max)
-                {
-                        max = (int)_histo->t[i];
-                        classeMax = i;
-                }
-        }
-        _histo->max = max;
-        _histo->classeMax = classeMax;
-        _histo->nb_pixels = im1->size;
-}
-void expDynamique(Image *im1)
-{
-        double aMin, aMax, alpha, beta;
-        int i, j;
-
-        initHisto(&stHisto,2048);
-        calculHisto(im1, &stHisto);
-
-        aMin = stHisto.t[0];
-        // on parcours l'histo du début vers la fin, la derniere valeur non nulle est la plus haute
-        for (i = 0; i < NB_NV_GRIS_SOBEL; i++)
-        {
-                if (stHisto.t[i] != 0)
-                {
-                        aMin = i-1024;
-                        break;
-                }
-        }
-
-        // on parcours l'histo de la fin vers le debut,  la derniere valeur non nulle est la plus basse
-        for (i = NB_NV_GRIS_SOBEL-1; i >= 0;  i--)
-        {
-                if (stHisto.t[i] != 0)
-                {
-                        aMax = i-1024;
-                        break;
-                }
-        }
-
-        for (i = 0; i < im1->width; i++){
-                for (j = 0; j < im1->height ; j++){
-                    im1->data[i+j*im1->width] = (short)(255*((im1->data[i+j*im1->width] -aMin)/(aMax - aMin)));
-                }
-        }
-}
-
-
-void FiltrageLineaire(Image *in, Image *out, FiltreLineaire *fl, float t){
-        int b = (int)fl->taille/2;
-        for(int i=0;i<in->height;i++){
-                for(int j=0;j<in->width;j++){
-                        float s=0;
-                        int n=0;
-                        for(int k=i-b;k<=i+b;k++){
-                                for(int l=j-b;l<=j+b;l++){
-                                        s+=ValMiror(in,l,k)*fl->coef[n++];
-                                }
-                        }
-                        out->data[j+i*in->width] = s*t+in->data[j+i*in->width];
-                }
-        }
-}
-
-void equation_chaleur(Image * in , Image *out , FiltreLineaire *fl , int n)
-{
-	float t=1/(float)n;
-	
-
-	for(int i = 0 ; i < n ; i++ ){
-		FiltrageLineaire(in , out , fl , t);
-		CopieImg( *out , *in );
+	int i;
+	_histo->taille = taille;
+	_histo->t = new double[taille];
+	for (i = 0; i< taille; i++)
+	{
+			_histo->t[i] = 0;
 	}
 }
-	
-	
 
-void affichage2(void)
+
+void calculHisto (Image * in, Histo * _histo)
 {
-    glRasterPos2i(0,0);
-    glDrawPixels(Im2.width,Im2.height,GL_LUMINANCE,GL_UNSIGNED_BYTE,I2);
-    glFlush();
+	int i,j;
+	int max, classeMax;
+	for (i = 0; i < in->width; i++)
+		for (j = 0; j < in->height; j++)
+		{
+			if(_histo->taille == 2048)
+				_histo->t[in->data[j*in->width+i]+1024]++;
+			else
+				_histo->t[in->data[j*in->width+i]]++;
+		}
+	max = (int)_histo->t[0];
+	classeMax = 0;
+	for (i = 1; i< _histo->taille; i++)
+	{
+			if (_histo->t[i] > max)
+			{
+					max = (int)_histo->t[i];
+					classeMax = i;
+			}
+	}
+	_histo->max = max;
+	_histo->classeMax = classeMax;
+	_histo->nb_pixels = in->size;
 }
+
+void expDynamique(Image *in)
+{
+	double aMin, aMax, alpha, beta;
+	int i, j;
+
+	initHisto(&stHisto,2048);
+	calculHisto(in, &stHisto);
+
+	aMin = stHisto.t[0];
+	// on parcours l'histo du début vers la fin, la derniere valeur non nulle est la plus haute
+	for (i = 0; i < NB_NV_GRIS_SOBEL; i++)
+	{
+			if (stHisto.t[i] != 0)
+			{
+					aMin = i-1024;
+					break;
+			}
+	}
+
+	// on parcours l'histo de la fin vers le debut,  la derniere valeur non nulle est la plus basse
+	for (i = NB_NV_GRIS_SOBEL-1; i >= 0;  i--)
+	{
+			if (stHisto.t[i] != 0)
+			{
+					aMax = i-1024;
+					break;
+			}
+	}
+
+	for (i = 0; i < in->width; i++){
+			for (j = 0; j < in->height ; j++){
+				in->data[i+j*in->width] = (short)(255*((in->data[i+j*in->width] -aMin)/(aMax - aMin)));
+			}
+	}
+}
+
+
+void FiltrageLineaire(Image *in, Image *out, FiltreLineaire *fl, float t)
+{
+	int b = (int)fl->taille/2;
+	for(int i=0;i<in->height;i++)
+	{
+		for(int j=0;j<in->width;j++)
+		{
+			float s=0;
+			int n=0;
+			for(int k=i-b;k<=i+b;k++)
+			{
+				for(int l=j-b;l<=j+b;l++)
+				{
+					s+=ValMiror(in,l,k)*fl->coef[n++];
+				}
+			}
+			out->data[j+i*in->width] = (short)(s*t+in->data[j+i*in->width]);
+		}
+	}
+}
+
+void equation_chaleur(Image *in , Image *out , FiltreLineaire *fl , int n)
+{
+	float t=1/(float)n;
+	Image tmp;
+	CreerImage(&tmp, in->width,in->height);
+	CopieImg(in, &tmp);
+	for(int i = 0 ; i < n ; i++)
+	{
+		FiltrageLineaire(&tmp, out, fl, t);
+		CopieImg(out, &tmp);
+	}
+}
+
 
 void initGL(void)
 {
@@ -244,7 +254,7 @@ void ChoixMenuPrincipal(int value)
 			expDynamique(&Im2);
 			BasculeImage(&Im2, I2);
 		break;
-		case 10 :// EcrireImage("res.pgm",&Im2);
+		case 10 : //EcrireImage("res.pgm",&Im2);
 		break;
 		case 11 : //LibererImage(&Im);
 		//LibererImage(&Im2);
@@ -306,7 +316,7 @@ int main(int argc,char **argv)
 	
 	CreerImage(&Im2,Im.width,Im.height);
 
-	/* Allocation de la memoire des images � afficher */
+	/* Allocation de la memoire des images à afficher */
 	if ( (I1=(GLubyte *) malloc(sizeof(GLubyte)*Im.width*Im.height)) == NULL)
 	{
 		printf("Impossible d'allouer I1\n");
@@ -328,24 +338,25 @@ int main(int argc,char **argv)
 	fl1.coef[6] = 0 ;fl1.coef[7] = 1  ;fl1.coef[8] = 0;
 
 
-    /*--------------------------Fen�tre 1----------------------------*/
+    /*--------------------------Fenetre 1----------------------------*/
 	glutInitWindowSize(Im.width,Im.height);
 	glutInitWindowPosition(400,200);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
 	f1=glutCreateWindow("Originale");
 	glutDisplayFunc(affichage1);
 	glutReshapeFunc(redim);
+	glutKeyboardFunc(clavier);
 	CreerMenu();
 	initGL();
 
-	/*--------------------------Fen�tre 2----------------------------*/
+	/*--------------------------Fenetre 2----------------------------*/
 	glutInitWindowSize(Im2.width,Im2.height);
 	glutInitWindowPosition(700,200);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
 	f2=glutCreateWindow("Filtree");
 	glutDisplayFunc(affichage2);
 	glutReshapeFunc(redim);
-	glutKeyboardFunc(clavier);
+	
 	initGL();
 	
 	glutMainLoop();

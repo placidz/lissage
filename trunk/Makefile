@@ -1,5 +1,5 @@
 CPP=g++
-CPPFLAGS=-O3 
+CPPFLAGS=-O3 -ggdb3
 SRC=source/
 
 all : main
@@ -16,4 +16,4 @@ OutilsPGM.o : $(SRC)OutilsPGM.c
 clean :
 	rm -f *.o
 	rm -f source/*.o
-	rm -f main
+	rm -f projet
