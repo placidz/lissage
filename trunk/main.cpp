@@ -303,6 +303,18 @@ void clavier(unsigned char key, int x, int y)
 				printf("Nombre de passes : %d\n", nbPasses);
 			}
 		break;
+		case 43:
+			if (fl1.taille<9)
+			{
+				fl1.taille=fl1.taille+2;
+			}
+			break;
+		case 45:      
+			if (fl1.taille>1)
+			{
+				fl1.taille=fl1.taille-2;
+			}
+			break;
 	}
 	glutPostRedisplay();
 }
