@@ -1,23 +1,3 @@
-/****************************************************************************
- **
- ** Copyright (C) 2005-2008 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
- **
- ** This file is part of the documentation of the Qt Toolkit.
- **
- ** Licensees holding a valid Qt License Agreement may use this file in
- ** accordance with the rights, responsibilities and obligations
- ** contained therein.  Please consult your licensing agreement or
- ** contact qt-sales@nokia.com if any conditions of this licensing
- ** agreement are not clear to you.
- **
- ** Further information about Qt licensing is available at:
- ** http://trolltech.com/products/appdev/licensing.
- **
- ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- **
- ****************************************************************************/
-
 #include <QtGui>
 
 #include "glwidget.h"
@@ -27,13 +7,30 @@ Window::Window()
 {
     glWidgetOriginale = new GLWidget();
     glWidgetResultat = new GLWidget();
-    combobox = new QComboBox;
-    combobox->addItem("Equation de la Chaleur");
-    combobox->addItem("Malik et Perona");
-    combobox->addItem("Equation par courbure moyenne");
-    button = new QPushButton("Appliquer le filtre");
-    labelImgOriginale = new QLabel("Image originale");
-    labelImgFiltree = new QLabel("Image filtrée");
+
+    comboBoxChoixEquation = new QComboBox;
+    comboBoxChoixEquation->addItem("Equation de la Chaleur");
+    comboBoxChoixEquation->addItem("Approche de Malik et Perona");
+    comboBoxChoixEquation->addItem("Equation par courbure moyenne");
+
+    buttonLancerEquation = new QPushButton("Appliquer le filtre");
+    buttonLancerEquation->setFixedWidth(150);
+    buttonResetImgResultat = new QPushButton(">>");
+    buttonResetImgResultat->setFixedWidth(40);
+    buttonSauverResultat = new QPushButton("Sauvegarder");
+    buttonSauverResultat->setFixedWidth(100);
+
+    sboxNombreIterations = new QSpinBox;
+    sboxNombreIterations->setValue(20);
+    sboxNombreIterations->setMinimum(1);
+    sboxNombreIterations->setMaximum(1000);
+    sboxNombreIterations->setFixedWidth(70);
+    sboxDelta = new QDoubleSpinBox;
+    sboxDelta->setValue(1.1);
+
+    labelImgOriginale = new QLabel("<strong>Image originale</strong>");
+    labelImgFiltree = new QLabel("<strong>Image filtrée</strong>");
+    labelNombreIterations = new QLabel("Nombre d'itérations :");
 
     fLaplacien.coef = new float[9];
     fLaplacien.taille = 3;
@@ -41,28 +38,31 @@ Window::Window()
     fLaplacien.coef[3] = 1; fLaplacien.coef[4] = -4;fLaplacien.coef[5] = 1;
     fLaplacien.coef[6] = 0; fLaplacien.coef[7] = 1; fLaplacien.coef[8] = 0;
 
-    connect(button, SIGNAL(clicked()), this, SLOT(slot_clicked()));
+    connect(buttonLancerEquation, SIGNAL(clicked()), this, SLOT(slot_buttonChoixEquationClicked()));
     connect(this, SIGNAL(signal_EquationChaleur(Image*,Image*,FiltreLineaire*,int)), glWidgetResultat, SLOT(EquationChaleur(Image*,Image*,FiltreLineaire*,int)));
 
-    /*connect(xSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setXRotation(int)));
-     connect(glWidget, SIGNAL(xRotationChanged(int)), xSlider, SLOT(setValue(int)));
-     connect(ySlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setYRotation(int)));
-     connect(glWidget, SIGNAL(yRotationChanged(int)), ySlider, SLOT(setValue(int)));
-     connect(zSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setZRotation(int)));
-     connect(glWidget, SIGNAL(zRotationChanged(int)), zSlider, SLOT(setValue(int)));*/
+    connect(buttonResetImgResultat, SIGNAL(clicked()), this, SLOT(slot_buttonResetImgResultat()));
+    connect(this, SIGNAL(signal_ResetImgResultat(Image*)), glWidgetResultat, SLOT(ResetImage(Image*)));
 
     QGridLayout *mainLayout = new QGridLayout;
     QGridLayout *hLayout = new QGridLayout;
-    QVBoxLayout *vLayout = new QVBoxLayout;
+    QGridLayout *vLayout = new QGridLayout;
 
-
-    hLayout->addWidget(labelImgOriginale, 0, 0);
-    hLayout->addWidget(labelImgFiltree, 0, 1);
+    hLayout->addWidget(labelImgOriginale, 0, 0, Qt::AlignHCenter);
+    hLayout->addWidget(labelImgFiltree, 0, 2, Qt::AlignHCenter);
     hLayout->addWidget(glWidgetOriginale, 1, 0);
-    hLayout->addWidget(glWidgetResultat, 1, 1);
+    hLayout->addWidget(buttonResetImgResultat, 1, 1, Qt::AlignHCenter);
+    hLayout->addWidget(glWidgetResultat, 1, 2);
+    hLayout->addWidget(buttonSauverResultat, 2, 2, Qt::AlignHCenter);
 
-    vLayout->addWidget(combobox);
-    vLayout->addWidget(button);
+    vLayout->addWidget(comboBoxChoixEquation, 0, 0, Qt::AlignHCenter);
+
+    QFormLayout *rowsLayout = new QFormLayout;
+    rowsLayout->addRow("Nombre d'itérations : ", sboxNombreIterations);
+    rowsLayout->addRow("Delta : ", sboxDelta);
+    vLayout->addLayout(rowsLayout, 1, 0, Qt::AlignHCenter);
+
+    vLayout->addWidget(buttonLancerEquation, 2, 0, Qt::AlignCenter);
 
     mainLayout->addLayout(hLayout, 0, 0);
     mainLayout->addLayout(vLayout, 0, 1);
@@ -72,7 +72,23 @@ Window::Window()
     setWindowTitle(tr("Methodes de debruitage par equations de diffusion"));
 }
 
-void Window::slot_clicked()
+void Window::slot_buttonChoixEquationClicked()
 {
-    emit signal_EquationChaleur(&glWidgetOriginale->image, &glWidgetResultat->image, &fLaplacien, 20);
+    int choix = comboBoxChoixEquation->currentIndex();
+    switch(choix)
+    {
+    case 0:
+	printf("Equation de la Chaleur\n");
+	emit signal_EquationChaleur(&glWidgetOriginale->image, &glWidgetResultat->image, &fLaplacien, sboxNombreIterations->value());
+	break;
+
+    default:
+	printf("Erreur dans le choix\n");
+	break;
+    }
+}
+
+void Window::slot_buttonResetImgResultat()
+{
+    emit signal_ResetImgResultat(&glWidgetOriginale->image);
 }
