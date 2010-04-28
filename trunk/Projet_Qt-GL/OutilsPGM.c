@@ -16,7 +16,7 @@ int CreerImage(Image *image, int largeur, int hauteur)
     return 0;
 }
 
-int LireImage(char *nom, Image *image)
+int LireImage(const char *nom, Image *image)
 {
     FILE *f;
     char s[MAXLIGNE];
@@ -212,15 +212,15 @@ void ExpansionDynamique(Image *ori, Image *in, Image *out)
     for (j=0; j< height; j++)
 	for (i = 0; i < width; i++)
 	{
-	if (ValMiror(ori, i, j) < mini2) mini2 = ValMiror(ori, i, j);
-	if (ValMiror(ori, i, j) > maxi2) maxi2 = ValMiror(ori, i, j);
-    }
+	    if (ValMiror(ori, i, j) < mini2) mini2 = ValMiror(ori, i, j);
+	    if (ValMiror(ori, i, j) > maxi2) maxi2 = ValMiror(ori, i, j);
+	}
     for (j=0; j< height; j++)
 	for (i = 0; i < width; i++)
 	{
-	if (ValMiror(in, i, j) < mini1) mini1 = ValMiror(in, i, j);
-	if (ValMiror(in, i, j) > maxi1) maxi1 = ValMiror(in, i, j);
-    }
+	    if (ValMiror(in, i, j) < mini1) mini1 = ValMiror(in, i, j);
+	    if (ValMiror(in, i, j) > maxi1) maxi1 = ValMiror(in, i, j);
+	}
     short a, b;
 
     a = (short)(maxi2-mini2)/(maxi1-mini1);

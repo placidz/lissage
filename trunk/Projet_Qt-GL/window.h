@@ -13,6 +13,7 @@ extern "C"
 class QSlider;
 class QComboBox;
 class QPushButton;
+class QFileDialog;
 class QLabel;
 class QSpinBox;
 class QDoubleSpinBox;
@@ -28,18 +29,28 @@ public:
 
 signals:
     void signal_EquationChaleur(Image *in , Image *out , FiltreLineaire *fl , int n);
-    void signal_ResetImgResultat(Image *originale);
+    void signal_CopieImgOriginale(Image *source);
+    void signal_CopieImgResultat(Image *source);
+    void signal_BruitageImpulsionnel(Image *in, Image *out, int b);
+    void signal_BruitagePoivreEtSel(Image *in, Image *out);
+    void signal_ChargerImage(QString sFileName);
 
 public slots:
     void slot_buttonChoixEquationClicked();
-    void slot_buttonResetImgResultat();
+    void slot_buttonCopieImgOriginale();
+    void slot_buttonCopieImgResultat();
+    void slot_openFileDialog();
 
 private:
+    QString strFileName;
+
     GLWidget *glWidgetOriginale;
     GLWidget *glWidgetResultat;
     QComboBox *comboBoxChoixEquation;
     QPushButton *buttonLancerEquation;
-    QPushButton *buttonResetImgResultat;
+    QPushButton *buttonCopieImgResultat;
+    QPushButton *buttonCopieImgOriginale;
+    QPushButton *buttonChargerImage;
     QPushButton *buttonSauverResultat;
     QLabel *labelImgOriginale;
     QLabel *labelImgFiltree;

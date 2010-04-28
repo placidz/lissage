@@ -76,7 +76,7 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-wXEeOiwxd3,guid=34023d48fafc96641370bc664bd72cf9</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-r0eNlnbGgd,guid=7b0cdc4a1ce21dec1084d9de4bd7fa67</value>
     <value type="QString">DEFAULTS_PATH=/usr/share/gconf/gnome.default.path</value>
     <value type="QString">DESKTOP_SESSION=gnome</value>
     <value type="QString">DISPLAY=:0.0</value>
@@ -84,29 +84,29 @@
     <value type="QString">GDM_KEYBOARD_LAYOUT=fr	oss</value>
     <value type="QString">GDM_LANG=fr_FR.utf8</value>
     <value type="QString">GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-OICmXL</value>
-    <value type="QString">GNOME_KEYRING_PID=1566</value>
+    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-wwwepO</value>
+    <value type="QString">GNOME_KEYRING_PID=1527</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">HOME=/home/placid</value>
     <value type="QString">LANG=fr_FR.utf8</value>
-    <value type="QString">LD_LIBRARY_PATH=/home/placid/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LD_LIBRARY_PATH=/usr/lib/qtcreator:</value>
     <value type="QString">LOGNAME=placid</value>
     <value type="QString">MANDATORY_PATH=/usr/share/gconf/gnome.mandatory.path</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-placid</value>
     <value type="QString">PATH=/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
     <value type="QString">PWD=/home/placid</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
-    <value type="QString">SESSION_MANAGER=local/placid-laptop:@/tmp/.ICE-unix/1584,unix/placid-laptop:/tmp/.ICE-unix/1584</value>
+    <value type="QString">SESSION_MANAGER=local/placid-laptop:@/tmp/.ICE-unix/1545,unix/placid-laptop:/tmp/.ICE-unix/1545</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SPEECHD_PORT=7560</value>
-    <value type="QString">SSH_AGENT_PID=1619</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-OICmXL/ssh</value>
+    <value type="QString">SSH_AGENT_PID=1580</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-wwwepO/ssh</value>
     <value type="QString">USER=placid</value>
     <value type="QString">USERNAME=placid</value>
-    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-placid-CpoeDH/database</value>
+    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-placid-OmrTK7/database</value>
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg/xdg-gnome:/etc/xdg</value>
     <value type="QString">XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/</value>
-    <value type="QString">XDG_SESSION_COOKIE=46966b38f48ea35f024cc3734978a1ba-1272392952.646356-77337209</value>
+    <value type="QString">XDG_SESSION_COOKIE=46966b38f48ea35f024cc3734978a1ba-1272445543.664299-560033776</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
     <value type="QString">/home/placid/dev/Etudes/Master_1/Semestre_2/Projet_Semestriel/Projet_Qt-GL/projet.pro</value>
@@ -125,7 +125,7 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-wXEeOiwxd3,guid=34023d48fafc96641370bc664bd72cf9</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-r0eNlnbGgd,guid=7b0cdc4a1ce21dec1084d9de4bd7fa67</value>
     <value type="QString">DEFAULTS_PATH=/usr/share/gconf/gnome.default.path</value>
     <value type="QString">DESKTOP_SESSION=gnome</value>
     <value type="QString">DISPLAY=:0.0</value>
@@ -133,29 +133,29 @@
     <value type="QString">GDM_KEYBOARD_LAYOUT=fr	oss</value>
     <value type="QString">GDM_LANG=fr_FR.utf8</value>
     <value type="QString">GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-OICmXL</value>
-    <value type="QString">GNOME_KEYRING_PID=1566</value>
+    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-wwwepO</value>
+    <value type="QString">GNOME_KEYRING_PID=1527</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">HOME=/home/placid</value>
     <value type="QString">LANG=fr_FR.utf8</value>
-    <value type="QString">LD_LIBRARY_PATH=/home/placid/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LD_LIBRARY_PATH=/usr/lib/qtcreator:</value>
     <value type="QString">LOGNAME=placid</value>
     <value type="QString">MANDATORY_PATH=/usr/share/gconf/gnome.mandatory.path</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-placid</value>
     <value type="QString">PATH=/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
     <value type="QString">PWD=/home/placid</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
-    <value type="QString">SESSION_MANAGER=local/placid-laptop:@/tmp/.ICE-unix/1584,unix/placid-laptop:/tmp/.ICE-unix/1584</value>
+    <value type="QString">SESSION_MANAGER=local/placid-laptop:@/tmp/.ICE-unix/1545,unix/placid-laptop:/tmp/.ICE-unix/1545</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SPEECHD_PORT=7560</value>
-    <value type="QString">SSH_AGENT_PID=1619</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-OICmXL/ssh</value>
+    <value type="QString">SSH_AGENT_PID=1580</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-wwwepO/ssh</value>
     <value type="QString">USER=placid</value>
     <value type="QString">USERNAME=placid</value>
-    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-placid-CpoeDH/database</value>
+    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-placid-OmrTK7/database</value>
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg/xdg-gnome:/etc/xdg</value>
     <value type="QString">XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/</value>
-    <value type="QString">XDG_SESSION_COOKIE=46966b38f48ea35f024cc3734978a1ba-1272392952.646356-77337209</value>
+    <value type="QString">XDG_SESSION_COOKIE=46966b38f48ea35f024cc3734978a1ba-1272445543.664299-560033776</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
    <valuelist key="abstractProcess.arguments" type="QVariantList">

@@ -35,7 +35,7 @@ typedef struct {
 } FiltreLineaire;
 
 int CreerImage(Image *image, int largeur, int hauteur);
-int LireImage(char *nom, Image *image);
+int LireImage(const char *nom, Image *image);
 int EcrireImage(char *nom, Image *image);
 void LibererImage(Image *i);
 

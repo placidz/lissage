@@ -12,11 +12,17 @@ Window::Window()
     comboBoxChoixEquation->addItem("Equation de la Chaleur");
     comboBoxChoixEquation->addItem("Approche de Malik et Perona");
     comboBoxChoixEquation->addItem("Equation par courbure moyenne");
+    comboBoxChoixEquation->addItem("- - - - - - - - - - - - - - - - - - - - - - - - - -");
+    comboBoxChoixEquation->addItem("Bruitage Impulsionnel");
+    comboBoxChoixEquation->addItem("Bruitage Poivre et Sel");
 
     buttonLancerEquation = new QPushButton("Appliquer le filtre");
     buttonLancerEquation->setFixedWidth(150);
-    buttonResetImgResultat = new QPushButton(">>");
-    buttonResetImgResultat->setFixedWidth(40);
+    buttonCopieImgOriginale= new QPushButton(">>");
+    buttonCopieImgOriginale->setFixedWidth(40);
+    buttonCopieImgResultat = new QPushButton("<<");
+    buttonCopieImgResultat->setFixedWidth(40);
+    buttonChargerImage = new QPushButton("Charger...");
     buttonSauverResultat = new QPushButton("Sauvegarder");
     buttonSauverResultat->setFixedWidth(100);
 
@@ -27,9 +33,10 @@ Window::Window()
     sboxNombreIterations->setFixedWidth(70);
     sboxDelta = new QDoubleSpinBox;
     sboxDelta->setValue(1.1);
+    sboxDelta->setFixedWidth(60);
 
-    labelImgOriginale = new QLabel("<strong>Image originale</strong>");
-    labelImgFiltree = new QLabel("<strong>Image filtrée</strong>");
+    labelImgOriginale = new QLabel("<strong>Image départ</strong>");
+    labelImgFiltree = new QLabel("<strong>Image résultat</strong>");
     labelNombreIterations = new QLabel("Nombre d'itérations :");
 
     fLaplacien.coef = new float[9];
@@ -40,9 +47,17 @@ Window::Window()
 
     connect(buttonLancerEquation, SIGNAL(clicked()), this, SLOT(slot_buttonChoixEquationClicked()));
     connect(this, SIGNAL(signal_EquationChaleur(Image*,Image*,FiltreLineaire*,int)), glWidgetResultat, SLOT(EquationChaleur(Image*,Image*,FiltreLineaire*,int)));
+    connect(this, SIGNAL(signal_BruitageImpulsionnel(Image*,Image*,int)), glWidgetResultat, SLOT(BruitageImpulsionnel(Image*,Image*,int)));
+    connect(this, SIGNAL(signal_BruitagePoivreEtSel(Image*,Image*)), glWidgetResultat, SLOT(BruitagePoivreEtSel(Image*,Image*)));
 
-    connect(buttonResetImgResultat, SIGNAL(clicked()), this, SLOT(slot_buttonResetImgResultat()));
-    connect(this, SIGNAL(signal_ResetImgResultat(Image*)), glWidgetResultat, SLOT(ResetImage(Image*)));
+    connect(buttonCopieImgOriginale, SIGNAL(clicked()), this, SLOT(slot_buttonCopieImgOriginale()));
+    connect(this, SIGNAL(signal_CopieImgOriginale(Image*)), glWidgetResultat, SLOT(CopieImg(Image*)));
+    connect(buttonCopieImgResultat, SIGNAL(clicked()), this, SLOT(slot_buttonCopieImgResultat()));
+    connect(this, SIGNAL(signal_CopieImgResultat(Image*)), glWidgetOriginale, SLOT(CopieImg(Image*)));
+    connect(this, SIGNAL(signal_ChargerImage(QString)), glWidgetOriginale, SLOT(ChargerImage(QString)));
+    connect(this, SIGNAL(signal_ChargerImage(QString)), glWidgetResultat, SLOT(ChargerImage(QString)));
+
+    connect(buttonChargerImage, SIGNAL(clicked()), this, SLOT(slot_openFileDialog()));
 
     QGridLayout *mainLayout = new QGridLayout;
     QGridLayout *hLayout = new QGridLayout;
@@ -51,8 +66,12 @@ Window::Window()
     hLayout->addWidget(labelImgOriginale, 0, 0, Qt::AlignHCenter);
     hLayout->addWidget(labelImgFiltree, 0, 2, Qt::AlignHCenter);
     hLayout->addWidget(glWidgetOriginale, 1, 0);
-    hLayout->addWidget(buttonResetImgResultat, 1, 1, Qt::AlignHCenter);
+    QVBoxLayout *littleLayout = new QVBoxLayout;
+    littleLayout->addWidget(buttonCopieImgOriginale, Qt::AlignHCenter);
+    littleLayout->addWidget(buttonCopieImgResultat, Qt::AlignHCenter);
+    hLayout->addLayout(littleLayout, 1, 1, Qt::AlignHCenter);
     hLayout->addWidget(glWidgetResultat, 1, 2);
+    hLayout->addWidget(buttonChargerImage, 2, 0,  Qt::AlignHCenter);
     hLayout->addWidget(buttonSauverResultat, 2, 2, Qt::AlignHCenter);
 
     vLayout->addWidget(comboBoxChoixEquation, 0, 0, Qt::AlignHCenter);
@@ -82,13 +101,45 @@ void Window::slot_buttonChoixEquationClicked()
 	emit signal_EquationChaleur(&glWidgetOriginale->image, &glWidgetResultat->image, &fLaplacien, sboxNombreIterations->value());
 	break;
 
+    case 4:
+	printf("Bruitage Impulsionnel\n");
+	emit signal_BruitageImpulsionnel(&glWidgetOriginale->image, &glWidgetResultat->image, 20);
+	break;
+
+    case 5:
+	printf("Bruitage Poivre et Sel\n");
+	emit signal_BruitagePoivreEtSel(&glWidgetOriginale->image, &glWidgetResultat->image);
+	break;
+
     default:
-	printf("Erreur dans le choix\n");
+	QMessageBox::critical(this, "Erreur de sélection", "Erreur dans la sélection de l'opération.");
 	break;
     }
 }
 
-void Window::slot_buttonResetImgResultat()
+void Window::slot_buttonCopieImgOriginale()
 {
-    emit signal_ResetImgResultat(&glWidgetOriginale->image);
+    emit signal_CopieImgOriginale(&glWidgetOriginale->image);
+}
+
+void Window::slot_buttonCopieImgResultat()
+{
+    emit signal_CopieImgResultat(&glWidgetResultat->image);
+}
+
+void Window::slot_openFileDialog()
+{
+    QFileDialog* fd = new QFileDialog(this, "Choose an image file to open");
+
+    fd->setFileMode(QFileDialog::ExistingFiles);
+    fd->setFilter( "Images PGM (*.pgm)" );
+
+    if ( fd->exec() == QDialog::Accepted )
+    {
+	strFileName = fd->selectedFiles().at(0);//fd->selectedFile();
+	emit signal_ChargerImage(strFileName);
+	//this->setFixedWidth(glWidgetOriginale->image.width + glWidgetResultat->image.width + 350);
+	//this->setFixedHeight(glWidgetOriginale->image.height + 100);
+    }
+    else return;
 }
