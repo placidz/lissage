@@ -4,7 +4,7 @@ HEADERS = glwidget.h \
 SOURCES = glwidget.cpp \
     main.cpp \
     window.cpp \
-    OutilsPGM.c
+    OutilsPGM.cpp
 QT += opengl
 
 # install

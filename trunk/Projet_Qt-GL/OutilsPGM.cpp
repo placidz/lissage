@@ -16,6 +16,20 @@ int CreerImage(Image *image, int largeur, int hauteur)
     return 0;
 }
 
+int CreerImageD(ImageD *image, int largeur, int hauteur)
+{
+    image->width=largeur;
+    image->height=hauteur;
+    image->size=largeur*hauteur;
+    image->data=(double*)malloc(image->size * sizeof(double));
+    if (image->data == NULL)
+    {
+	printf ("ERREUR malloc (%d)\n", image->size * sizeof(double));
+	return -1;
+    }
+    return 0;
+}
+
 int LireImage(const char *nom, Image *image)
 {
     FILE *f;
@@ -212,22 +226,109 @@ void ExpansionDynamique(Image *ori, Image *in, Image *out)
     for (j=0; j< height; j++)
 	for (i = 0; i < width; i++)
 	{
-	    if (ValMiror(ori, i, j) < mini2) mini2 = ValMiror(ori, i, j);
-	    if (ValMiror(ori, i, j) > maxi2) maxi2 = ValMiror(ori, i, j);
-	}
+	if (ValMiror(ori, i, j) < mini2) mini2 = ValMiror(ori, i, j);
+	if (ValMiror(ori, i, j) > maxi2) maxi2 = ValMiror(ori, i, j);
+    }
     for (j=0; j< height; j++)
 	for (i = 0; i < width; i++)
 	{
-	    if (ValMiror(in, i, j) < mini1) mini1 = ValMiror(in, i, j);
-	    if (ValMiror(in, i, j) > maxi1) maxi1 = ValMiror(in, i, j);
-	}
-    short a, b;
+	if (ValMiror(in, i, j) < mini1) mini1 = ValMiror(in, i, j);
+	if (ValMiror(in, i, j) > maxi1) maxi1 = ValMiror(in, i, j);
+    }
+    float a, b;
 
-    a = (short)(maxi2-mini2)/(maxi1-mini1);
-    b = (short)(-maxi2*mini1 + maxi1*mini2)/(maxi1-mini1);
+    a = (float)(maxi2-mini2)/(float)(maxi1-mini1);
+    b = (float)(-maxi2*mini1 + maxi1*mini2)/(float)(maxi1-mini1);
     out->size = in->size;
     for (i = 0; i < out->size; i++)
     {
 	out->data[i] = (short)(a*in->data[i] + b);
     }
+}
+
+
+void InitImg(Image& in)
+{
+	for(int i=0;i<in.height;i++){
+		for(int j=0;j<in.width;j++){
+			in.data[i*in.width+j] = 0;
+		}
+	}
+}
+
+
+void initHisto(Histo * _histo,int taille)
+{
+	int i;
+	_histo->taille = taille;
+	_histo->t = new double[taille];
+	for (i = 0; i< taille; i++)
+	{
+		_histo->t[i] = 0;
+	}
+}
+
+
+void calculHisto (Image * im1, Histo * _histo)
+{
+	int i,j;
+	int max, classeMax;
+	for (i = 0; i < im1->width; i++)
+		for (j = 0; j < im1->height; j++)
+		{
+			if(_histo->taille == 2048)
+				_histo->t[im1->data[j*im1->width+i] +1024] ++;
+			else
+				_histo->t[im1->data[j*im1->width+i]]++;
+		}
+	max = (int)_histo->t[0];
+	classeMax = 0;
+	for (i = 1; i< _histo->taille; i++)
+	{
+		if (_histo->t[i] > max)
+		{
+			max = (int)_histo->t[i];
+			classeMax = i;
+		}
+	}
+	_histo->max = max;
+	_histo->classeMax = classeMax;
+	_histo->nb_pixels = im1->size;
+}
+
+void expDynamique(Image *in)
+{
+	double aMin, aMax;
+	int i, j;
+
+	Histo histo;
+	initHisto(&histo,2048);
+	calculHisto(in, &histo);
+
+	aMin = histo.t[0];
+	// on parcours l'histo du début vers la fin, la derniere valeur non nulle est la plus haute
+	for (i = 0; i < NB_NV_GRIS_SOBEL; i++)
+	{
+		if (histo.t[i] != 0)
+		{
+			aMin = i-1024;
+			break;
+		}
+	}
+
+	// on parcours l'histo de la fin vers le debut,  la derniere valeur non nulle est la plus basse
+	for (i = NB_NV_GRIS_SOBEL-1; i >= 0;  i--)
+	{
+		if (histo.t[i] != 0)
+		{
+			aMax = i-1024;
+			break;
+		}
+	}
+
+	for (i = 0; i < in->width; i++){
+		for (j = 0; j < in->height ; j++){
+		    in->data[i+j*in->width] = (short)(255*((in->data[i+j*in->width] -aMin)/(aMax - aMin)));
+		}
+	}
 }

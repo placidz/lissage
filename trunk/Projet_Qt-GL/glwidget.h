@@ -2,11 +2,7 @@
 #define GLWIDGET_H
 
 #include <QGLWidget>
-
-extern "C"
-{
 #include "OutilsPGM.h"
-}
 
 
 class GLWidget : public QGLWidget
@@ -28,15 +24,20 @@ public:
 public slots:
     void EquationChaleur(Image *in , Image *out , FiltreLineaire *fl , int n);
     void CopieImg(Image *source);
-    void BruitageImpulsionnel(Image *in, Image *out, int b);
-    void BruitagePoivreEtSel(Image *in, Image *out);
+    void BruitageUniforme(Image *in, Image *out, int b);
+    void BruitageImpulsionnel(Image *in, Image *out);
     void ChargerImage(QString sFileName);
+    void appelMalikPerona(Image * in , Image *out, int n, int sigma);
 
 protected:
-    void FiltrageLineaire(Image *in, Image *out, FiltreLineaire *fl, float t);
-    void ExpansionDynamique2(Image *in, Image *out);
-    int Min(int a, int b);
-    int Max(int a, int b);
+    void FiltrageLineaire(ImageD *in, ImageD *out, FiltreLineaire *fl, float t);
+    void ExpansionDynamique2(ImageD *in, Image *out);
+    double calculeC(ImageD *Img, int i, int j, int dir, int sigma);
+    double calculeCnsew(ImageD *Img, int i, int j, int sigma);
+    void malikEtPerona(ImageD *in, ImageD *out, float t, int sigma);
+
+    double Min(double a, double b);
+    double Max(double a, double b);
 
 protected:
     void initializeGL();

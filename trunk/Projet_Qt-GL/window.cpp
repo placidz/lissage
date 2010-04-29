@@ -1,4 +1,3 @@
-#include <QtGui>
 
 #include "glwidget.h"
 #include "window.h"
@@ -13,8 +12,8 @@ Window::Window()
     comboBoxChoixEquation->addItem("Approche de Malik et Perona");
     comboBoxChoixEquation->addItem("Equation par courbure moyenne");
     comboBoxChoixEquation->addItem("- - - - - - - - - - - - - - - - - - - - - - - - - -");
+    comboBoxChoixEquation->addItem("Bruitage Uniforme");
     comboBoxChoixEquation->addItem("Bruitage Impulsionnel");
-    comboBoxChoixEquation->addItem("Bruitage Poivre et Sel");
 
     buttonLancerEquation = new QPushButton("Appliquer le filtre");
     buttonLancerEquation->setFixedWidth(150);
@@ -31,13 +30,15 @@ Window::Window()
     sboxNombreIterations->setMinimum(1);
     sboxNombreIterations->setMaximum(1000);
     sboxNombreIterations->setFixedWidth(70);
-    sboxDelta = new QDoubleSpinBox;
-    sboxDelta->setValue(1.1);
-    sboxDelta->setFixedWidth(60);
+    sboxSigma = new QSpinBox;
+    sboxSigma->setValue(20);
+    //sboxSigma->setSingleStep(0.1);
+    sboxSigma->setFixedWidth(60);
 
     labelImgOriginale = new QLabel("<strong>Image départ</strong>");
-    labelImgFiltree = new QLabel("<strong>Image résultat</strong>");
+    labelImgResultat = new QLabel("<strong>Image résultat</strong>");
     labelNombreIterations = new QLabel("Nombre d'itérations :");
+    labelSigma = new QLabel("Sigma : ");
 
     fLaplacien.coef = new float[9];
     fLaplacien.taille = 3;
@@ -47,8 +48,9 @@ Window::Window()
 
     connect(buttonLancerEquation, SIGNAL(clicked()), this, SLOT(slot_buttonChoixEquationClicked()));
     connect(this, SIGNAL(signal_EquationChaleur(Image*,Image*,FiltreLineaire*,int)), glWidgetResultat, SLOT(EquationChaleur(Image*,Image*,FiltreLineaire*,int)));
-    connect(this, SIGNAL(signal_BruitageImpulsionnel(Image*,Image*,int)), glWidgetResultat, SLOT(BruitageImpulsionnel(Image*,Image*,int)));
-    connect(this, SIGNAL(signal_BruitagePoivreEtSel(Image*,Image*)), glWidgetResultat, SLOT(BruitagePoivreEtSel(Image*,Image*)));
+    connect(this, SIGNAL(signal_MalikEtPerona(Image*,Image*,int,int)), glWidgetResultat, SLOT(appelMalikPerona(Image*,Image*,int,int)));
+    connect(this, SIGNAL(signal_BruitageUniforme(Image*,Image*,int)), glWidgetResultat, SLOT(BruitageUniforme(Image*,Image*,int)));
+    connect(this, SIGNAL(signal_BruitageImpulsionnel(Image*,Image*)), glWidgetResultat, SLOT(BruitageImpulsionnel(Image*,Image*)));
 
     connect(buttonCopieImgOriginale, SIGNAL(clicked()), this, SLOT(slot_buttonCopieImgOriginale()));
     connect(this, SIGNAL(signal_CopieImgOriginale(Image*)), glWidgetResultat, SLOT(CopieImg(Image*)));
@@ -64,21 +66,26 @@ Window::Window()
     QGridLayout *vLayout = new QGridLayout;
 
     hLayout->addWidget(labelImgOriginale, 0, 0, Qt::AlignHCenter);
-    hLayout->addWidget(labelImgFiltree, 0, 2, Qt::AlignHCenter);
+    hLayout->addWidget(labelImgResultat, 0, 2, Qt::AlignHCenter);
     hLayout->addWidget(glWidgetOriginale, 1, 0);
     QVBoxLayout *littleLayout = new QVBoxLayout;
+    littleLayout->setMargin(20);
     littleLayout->addWidget(buttonCopieImgOriginale, Qt::AlignHCenter);
     littleLayout->addWidget(buttonCopieImgResultat, Qt::AlignHCenter);
     hLayout->addLayout(littleLayout, 1, 1, Qt::AlignHCenter);
+
     hLayout->addWidget(glWidgetResultat, 1, 2);
     hLayout->addWidget(buttonChargerImage, 2, 0,  Qt::AlignHCenter);
     hLayout->addWidget(buttonSauverResultat, 2, 2, Qt::AlignHCenter);
 
     vLayout->addWidget(comboBoxChoixEquation, 0, 0, Qt::AlignHCenter);
 
-    QFormLayout *rowsLayout = new QFormLayout;
-    rowsLayout->addRow("Nombre d'itérations : ", sboxNombreIterations);
-    rowsLayout->addRow("Delta : ", sboxDelta);
+    //QFormLayout *rowsLayout = new QFormLayout;
+    QGridLayout *rowsLayout = new QGridLayout;
+    rowsLayout->addWidget(labelNombreIterations, 0, 0, Qt::AlignRight);
+    rowsLayout->addWidget(sboxNombreIterations, 0, 1, Qt::AlignHCenter);
+    rowsLayout->addWidget(labelSigma, 1, 0, Qt::AlignRight);
+    rowsLayout->addWidget(sboxSigma, 1, 1, Qt::AlignHCenter);
     vLayout->addLayout(rowsLayout, 1, 0, Qt::AlignHCenter);
 
     vLayout->addWidget(buttonLancerEquation, 2, 0, Qt::AlignCenter);
@@ -101,14 +108,23 @@ void Window::slot_buttonChoixEquationClicked()
 	emit signal_EquationChaleur(&glWidgetOriginale->image, &glWidgetResultat->image, &fLaplacien, sboxNombreIterations->value());
 	break;
 
+    case 1:
+	printf("Malik et Perona\n");
+	emit signal_MalikEtPerona(&glWidgetOriginale->image, &glWidgetResultat->image, sboxNombreIterations->value(), sboxSigma->value());
+	break;
+
+    case 2:
+	printf("Equation par courbure moyenne\n");
+	break;
+
     case 4:
-	printf("Bruitage Impulsionnel\n");
-	emit signal_BruitageImpulsionnel(&glWidgetOriginale->image, &glWidgetResultat->image, 20);
+	printf("Bruitage Uniforme\n");
+	emit signal_BruitageUniforme(&glWidgetOriginale->image, &glWidgetResultat->image, 20);
 	break;
 
     case 5:
-	printf("Bruitage Poivre et Sel\n");
-	emit signal_BruitagePoivreEtSel(&glWidgetOriginale->image, &glWidgetResultat->image);
+	printf("Bruitage Impulsionnel\n");
+	emit signal_BruitageImpulsionnel(&glWidgetOriginale->image, &glWidgetResultat->image);
 	break;
 
     default:
@@ -138,8 +154,9 @@ void Window::slot_openFileDialog()
     {
 	strFileName = fd->selectedFiles().at(0);//fd->selectedFile();
 	emit signal_ChargerImage(strFileName);
-	//this->setFixedWidth(glWidgetOriginale->image.width + glWidgetResultat->image.width + 350);
-	//this->setFixedHeight(glWidgetOriginale->image.height + 100);
+	this->setFixedWidth(glWidgetOriginale->image.width*2 + 380);
+	this->setFixedHeight(glWidgetOriginale->image.height + 100);
     }
     else return;
+    //adjustSize();
 }

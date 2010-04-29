@@ -1,9 +1,12 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QWidget>
-#include <QGLWidget>
 #include <iostream>
+
+#include <QWidget>
+#include <QtGui>
+#include <QGLWidget>
+
 
 extern "C"
 {
@@ -28,11 +31,12 @@ public:
     Window();
 
 signals:
-    void signal_EquationChaleur(Image *in , Image *out , FiltreLineaire *fl , int n);
     void signal_CopieImgOriginale(Image *source);
     void signal_CopieImgResultat(Image *source);
-    void signal_BruitageImpulsionnel(Image *in, Image *out, int b);
-    void signal_BruitagePoivreEtSel(Image *in, Image *out);
+    void signal_EquationChaleur(Image *in , Image *out , FiltreLineaire *fl , int n);
+    void signal_MalikEtPerona(Image * in , Image *out, int n, int sigma);
+    void signal_BruitageUniforme(Image *in, Image *out, int b);
+    void signal_BruitageImpulsionnel(Image *in, Image *out);
     void signal_ChargerImage(QString sFileName);
 
 public slots:
@@ -53,10 +57,11 @@ private:
     QPushButton *buttonChargerImage;
     QPushButton *buttonSauverResultat;
     QLabel *labelImgOriginale;
-    QLabel *labelImgFiltree;
+    QLabel *labelImgResultat;
     QLabel *labelNombreIterations;
+    QLabel *labelSigma;
     QSpinBox *sboxNombreIterations;
-    QDoubleSpinBox *sboxDelta;
+    QSpinBox *sboxSigma;
 
     FiltreLineaire fLaplacien;
 };

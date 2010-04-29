@@ -4,6 +4,7 @@
 #include <math.h>
 
 #define MAXLIGNE 256
+#define NB_NV_GRIS_SOBEL 2048
 
 typedef short Pixel;
 
@@ -35,6 +36,7 @@ typedef struct {
 } FiltreLineaire;
 
 int CreerImage(Image *image, int largeur, int hauteur);
+int CreerImageD(ImageD *image, int largeur, int hauteur);
 int LireImage(const char *nom, Image *image);
 int EcrireImage(char *nom, Image *image);
 void LibererImage(Image *i);
@@ -50,5 +52,6 @@ void CopierImageDtoS(ImageD *s, Image *d);
 double Distance(ImageD *im1, ImageD *im2);
 void Laplacien(ImageD * in, ImageD * out);
 void ExpansionDynamique(Image *ori, Image *in, Image *out);
+void expDynamique(Image *in);
 
  #endif
