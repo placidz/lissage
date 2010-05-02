@@ -1,11 +1,24 @@
 
 #include "glwidget.h"
+#include "glgraphique.h"
 #include "window.h"
 
 Window::Window()
 {
     glWidgetOriginale = new GLWidget();
+    glWidgetOriginale->setLineColor(0.0, 0.0, 1.0);
     glWidgetResultat = new GLWidget();
+    glWidgetResultat->setLineColor(1.0, 0.0, 0.0);
+    glWidgetGraphique = new GLGraphique();
+
+    glWidgetOriginale->graphique = glWidgetGraphique;
+    glWidgetResultat->graphique = glWidgetGraphique;
+
+    glWidgetGraphique->imgInitiale = glWidgetOriginale;
+    glWidgetGraphique->imgResultat = glWidgetResultat;
+
+    glWidgetOriginale->miroir = glWidgetResultat;
+    glWidgetResultat->miroir = glWidgetOriginale;
 
     comboBoxChoixEquation = new QComboBox;
     comboBoxChoixEquation->addItem("Equation de la Chaleur");
@@ -17,14 +30,16 @@ Window::Window()
     comboBoxChoixEquation->addItem("Bruitage Impulsionnel");
 
     buttonLancerEquation = new QPushButton("Appliquer le filtre");
-    //buttonLancerEquation->setFixedWidth(150);
-    buttonCopieImgOriginale= new QPushButton("Copier Image Initiale dans Résultat");
-    //buttonCopieImgOriginale->setFixedWidth(40);
-    buttonCopieImgResultat = new QPushButton("Copier Image Résultat dans Initiale");
-    //buttonCopieImgResultat->setFixedWidth(40);
+    buttonLancerEquation->setFont(QFont("", 9, QFont::Bold));
+    buttonLancerEquation->setFixedWidth(150);
+    buttonCopieImgOriginale= new QPushButton("Copier Image : Initiale >> Résultat");
+    buttonCopieImgOriginale->setFixedWidth(220);
+    buttonCopieImgResultat = new QPushButton("Copier Image : Initiale << Résultat");
+    buttonCopieImgResultat->setFixedWidth(220);
     buttonChargerImage = new QPushButton("Ouvrir une image...");
-    buttonSauverResultat = new QPushButton("Sauvegarder");
-    buttonSauverResultat->setFixedWidth(100);
+    buttonChargerImage->setFixedWidth(150);
+    buttonSauverResultat = new QPushButton("Sauvegarder le résultat");
+    buttonSauverResultat->setFixedWidth(180);
 
     sboxNombreIterations = new QSpinBox;
     sboxNombreIterations->setValue(20);
@@ -42,6 +57,10 @@ Window::Window()
     sboxSigma->setDisabled(true);
     sboxSigma->setMinimum(1);
     sboxSigma->setMaximum(200);
+
+    textSauvegarde = new QLineEdit;
+    textSauvegarde->setFixedWidth(200);
+    textSauvegarde->setText("nomFichierSauvegarde");
 
     fLaplacien.coef = new float[9];
     fLaplacien.taille = 3;
@@ -66,17 +85,26 @@ Window::Window()
     connect(this, SIGNAL(signal_CopieImgResultat(Image*)), glWidgetOriginale, SLOT(CopieImg(Image*)));
     connect(this, SIGNAL(signal_ChargerImage(QString)), glWidgetOriginale, SLOT(ChargerImage(QString)));
     connect(this, SIGNAL(signal_ChargerImage(QString)), glWidgetResultat, SLOT(ChargerImage(QString)));
+    connect(this, SIGNAL(signal_ChargerImage(QString)), glWidgetGraphique, SLOT(updateGraphique()));
+    connect(buttonLancerEquation, SIGNAL(clicked()), glWidgetGraphique, SLOT(updateGraphique()));
 
     connect(buttonChargerImage, SIGNAL(clicked()), this, SLOT(slot_openFileDialog()));
     connect(comboBoxChoixEquation, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_comboBoxChanged(int)));
+    connect(buttonSauverResultat, SIGNAL(clicked()), this, SLOT(slot_buttonSauvegarder()));
+    connect(this, SIGNAL(signal_SauverImage(QString,Image*)), this, SLOT(slot_sauvegarderImage(QString,Image*)));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QFormLayout *formLayout = new QFormLayout;
 
-    mainLayout->addWidget(buttonChargerImage, Qt::AlignCenter);
+    mainLayout->addWidget(buttonChargerImage);
+    mainLayout->setAlignment(buttonChargerImage, Qt::AlignCenter);
+    mainLayout->addSpacing(20);
+
     mainLayout->addWidget(comboBoxChoixEquation, Qt::AlignCenter);
-    mainLayout->addWidget(buttonCopieImgOriginale, Qt::AlignCenter);
-    mainLayout->addWidget(buttonCopieImgResultat, Qt::AlignCenter);
+    mainLayout->addWidget(buttonCopieImgOriginale);
+    mainLayout->setAlignment(buttonCopieImgOriginale, Qt::AlignHCenter);
+    mainLayout->addWidget(buttonCopieImgResultat);
+    mainLayout->setAlignment(buttonCopieImgResultat, Qt::AlignHCenter);
 
     QGroupBox *gpBox = new QGroupBox("Paramètres :");
     gpBox->setFlat(false);
@@ -94,15 +122,22 @@ Window::Window()
 
     mainLayout->addWidget(gpBox);
 
-    mainLayout->addWidget(buttonLancerEquation, Qt::AlignCenter);
+    mainLayout->addWidget(buttonLancerEquation);
+    mainLayout->setAlignment(buttonLancerEquation, Qt::AlignCenter);
 
-    printf("loled\n");
+    mainLayout->addSpacing(30);
+
+    mainLayout->addWidget(textSauvegarde);
+    mainLayout->setAlignment(textSauvegarde, Qt::AlignHCenter);
+
+    mainLayout->addWidget(buttonSauverResultat);
+    mainLayout->setAlignment(buttonSauverResultat, Qt::AlignHCenter); 
+
     setLayout(mainLayout);
-    printf("loled2\n");
 
     setWindowTitle(tr("Methodes de debruitage par equations de diffusion"));
 
-    setFixedSize(250, 400);
+    setFixedSize(275, 450);
     move(5, 200);
 
     glWidgetOriginale->setWindowTitle(tr("Image Initiale"));
@@ -112,26 +147,10 @@ Window::Window()
     glWidgetResultat->setWindowTitle(tr("Image Resultat"));
     glWidgetResultat->show();
     glWidgetResultat->move(600, 200);
-}
 
-void Window::setGLWidgetOriginale(GLWidget *_widget)
-{
-    this->glWidgetOriginale = _widget;
-}
-
-void Window::setGLWidgetResultat(GLWidget *_widget)
-{
-    this->glWidgetResultat = _widget;
-}
-
-GLWidget* Window::getGLWidgetOriginale()
-{
-    return this->glWidgetOriginale;
-}
-
-GLWidget* Window::getGLWidgetResultat()
-{
-    return this->glWidgetResultat;
+    glWidgetGraphique->setWindowTitle(tr("Vue en coupe"));
+    glWidgetGraphique->show();
+    glWidgetGraphique->move(300, 500);
 }
 
 void Window::slot_buttonChoixEquationClicked()
@@ -145,7 +164,7 @@ void Window::slot_buttonChoixEquationClicked()
 	break;
 
     case 1:
-	printf("Malik et Perona\n");
+	printf("Approche de Malik et Perona\n");
 	emit signal_MalikEtPerona(&glWidgetOriginale->image, &glWidgetResultat->image, sboxNombreIterations->value(), sboxTemps->value(), sboxSigma->value());
 	break;
 
@@ -204,8 +223,10 @@ void Window::closeEvent(QCloseEvent *event)
 {
     glWidgetOriginale->isWindowOpened = false;
     glWidgetResultat->isWindowOpened = false;
+    glWidgetGraphique->isWindowOpened = false;
     glWidgetOriginale->close();
     glWidgetResultat->close();
+    glWidgetGraphique->close();
     event->accept();
 }
 
@@ -253,4 +274,19 @@ void Window::slot_comboBoxChanged(int val)
 	QMessageBox::critical(this, "Erreur de sélection", "Erreur dans la sélection de l'opération.");
 	break;
     }
+}
+
+void Window::slot_buttonSauvegarder()
+{
+    if (textSauvegarde->text() == "")
+	textSauvegarde->setText("imageResultat");
+
+    textSauvegarde->setText(textSauvegarde->text() + ".pgm");
+    emit signal_SauverImage(textSauvegarde->text(), &glWidgetResultat->image);
+}
+
+void Window::slot_sauvegarderImage(QString sFileName, Image *in)
+{
+    EcrireImage(sFileName.toStdString().c_str(), in);
+    QMessageBox::information(this, "Information", "L'image résultat a bien été sauvegardé sous le nom " + sFileName + " à la racine du projet.");
 }

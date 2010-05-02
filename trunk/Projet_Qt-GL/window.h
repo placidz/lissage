@@ -9,6 +9,7 @@
 #include <QAction>
 #include <QtGui>
 #include <QGLWidget>
+#include <QEvent>
 
 
 extern "C"
@@ -24,8 +25,10 @@ class QFileDialog;
 class QLabel;
 class QSpinBox;
 class QDoubleSpinBox;
+class QLineEdit;
 
 class GLWidget;
+class GLGraphique;
 
 class Window
     : public QWidget
@@ -34,10 +37,6 @@ class Window
 
 public:
     Window();
-    void setGLWidgetOriginale(GLWidget *_widget);
-    void setGLWidgetResultat(GLWidget *_widget);
-    GLWidget* getGLWidgetOriginale();
-    GLWidget* getGLWidgetResultat();
 
 signals:
     void signal_CopieImgOriginale(Image *source);
@@ -49,7 +48,8 @@ signals:
     void signal_BruitageUniforme(Image *in, Image *out, int b);
     void signal_BruitageImpulsionnel(Image *in, Image *out);
     void signal_ChargerImage(QString sFileName);
-    //void signal_comboBoxClick();
+    void signal_DessinerVueEnCoupe(Image * in, int line);
+    void signal_SauverImage(QString sFileName, Image *in);
 
 public slots:
     void slot_buttonChoixEquationClicked();
@@ -57,6 +57,8 @@ public slots:
     void slot_buttonCopieImgResultat();
     void slot_openFileDialog();
     void slot_comboBoxChanged(int val);
+    void slot_buttonSauvegarder();
+    void slot_sauvegarderImage(QString sFileName, Image *in);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -66,6 +68,7 @@ private:
 
     GLWidget *glWidgetOriginale;
     GLWidget *glWidgetResultat;
+    GLGraphique *glWidgetGraphique;
 
     QComboBox *comboBoxChoixEquation;
     QPushButton *buttonLancerEquation;
@@ -76,6 +79,7 @@ private:
     QSpinBox *sboxNombreIterations;
     QSpinBox *sboxSigma;
     QDoubleSpinBox *sboxTemps;
+    QLineEdit *textSauvegarde;
 
     FiltreLineaire fLaplacien;
     FiltreLineaire fMedian;

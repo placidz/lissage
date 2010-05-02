@@ -38,7 +38,7 @@ typedef struct {
 int CreerImage(Image *image, int largeur, int hauteur);
 int CreerImageD(ImageD *image, int largeur, int hauteur);
 int LireImage(const char *nom, Image *image);
-int EcrireImage(char *nom, Image *image);
+int EcrireImage(const char *nom, Image *image);
 void LibererImage(Image *i);
 
 short ValMiror(Image *d, int x, int y);

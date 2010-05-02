@@ -2,8 +2,11 @@
 #define GLWIDGET_H
 
 #include <QGLWidget>
+#include <QEvent>
+#include "glgraphique.h"
 #include "OutilsPGM.h"
 
+class GLGraphique;
 
 class GLWidget : public QGLWidget
 {
@@ -14,14 +17,18 @@ public:
     ~GLWidget();
 
     bool isWindowOpened;
-
-    void Initialisation();
+    int LigneCoupe;
+    float lineColor[4];
 
     Image image;
     GLubyte *imgBuffer;
+    GLGraphique *graphique;
+    GLWidget *miroir;
 
     void BasculeImage(const Image *img, GLubyte *I);
-    //void openFilePGM(std::string _filename);
+    void setLineColor(float r, float g, float b);
+    void mousePressEvent(QMouseEvent *);
+    void updateLineCoupe(int h);
 
 public slots:
     void EquationChaleur(Image *in , Image *out , FiltreLineaire *fl , int n, double dt);

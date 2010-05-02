@@ -88,7 +88,7 @@ int LireImage(const char *nom, Image *image)
     return 0;
 }
 
-int EcrireImage(char *nom, Image *image)
+int EcrireImage(const char *nom, Image *image)
 {
     FILE *f;
     int n,k;

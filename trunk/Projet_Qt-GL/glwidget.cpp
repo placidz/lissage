@@ -10,6 +10,9 @@
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
+    graphique = NULL;
+    miroir = NULL;
+    LigneCoupe = -1;
     isWindowOpened = true;
     imgBuffer = NULL;
     image.width = 0;
@@ -17,7 +20,7 @@ GLWidget::GLWidget(QWidget *parent)
     image.size = 0;
     image.data = NULL;
     setFixedSize(200, 200);
-    ChargerImage("lena.pgm");
+    //ChargerImage("lena.pgm");
     trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 }
 
@@ -46,6 +49,14 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glRasterPos2i(0,0);
     glDrawPixels(image.width, image.height,GL_LUMINANCE,GL_UNSIGNED_BYTE, imgBuffer);
+    if (LigneCoupe != -1)
+    {
+	glColor4fv(lineColor);
+	glBegin(GL_LINES);
+	glVertex2i(0, image.height - LigneCoupe);
+	glVertex2i(image.width, image.height - LigneCoupe);
+	glEnd();
+    }
     glFlush();
 }
 
@@ -57,6 +68,21 @@ void GLWidget::resizeGL(int width, int height)
     gluOrtho2D(0,width,0,height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+}
+
+void GLWidget::mousePressEvent(QMouseEvent *e)
+{
+    LigneCoupe = e->y();
+    miroir->updateLineCoupe(e->y());
+    graphique->LigneADessiner = e->y();
+    graphique->updateGL();
+    updateGL();
+}
+
+void GLWidget::updateLineCoupe(int h)
+{
+    LigneCoupe = h;
+    updateGL();
 }
 
 void GLWidget::CopieImg(Image *source)
@@ -111,7 +137,8 @@ void GLWidget::appelMalikPerona(Image * in , Image *out, int n, double dt, int s
 
     CopierImageStoD(in, &U1);
 
-    for(int i = 0 ; i < n ; i++ ){
+    for(int i = 0 ; i < n ; i++ )
+    {
 	malikEtPerona(&U1 , &U2, dt, sigma);
 	CopierImageD(&U2 , &U1);
     }
@@ -125,8 +152,10 @@ void GLWidget::malikEtPerona(ImageD *in, ImageD *out, double dt, int sigma)
 {
     double res;
 
-    for(int i = 0; i < in->height; i++){
-	for(int j = 0; j < in->width; j++){
+    for(int j = 0; j < in->height; j++)
+    {
+	for(int i = 0; i < in->width; i++)
+	{
 	    res = ValMirorD(in, i, j) + calculeCnsew(in, i, j, sigma) * dt;
 	    ModifierPixelD(out, i, j, res );
 	}
@@ -148,9 +177,10 @@ double GLWidget::calculeCnsew(ImageD *Img, int i, int j, int sigma)
 double GLWidget::calculeC(ImageD *Img, int i, int j, int dir, int sigma)
 {
     double res;
-    double norme;
+    double norme = 0;
 
-    switch(dir){
+    switch(dir)
+    {
     case 0:
 	norme = sqrt(pow(ValMirorD(Img, i, j-1), 2) + pow(ValMirorD(Img, i, j), 2));
 	break;
@@ -200,15 +230,15 @@ void GLWidget::appelCourbureMoyenne(Image *in , Image *out, int n, double t)
 
 void GLWidget::courbureMoyenne(ImageD *in, ImageD *out, double t)
 {
-    int width = in->width, height = in->height;
+    //int width = in->width, height = in->height;
     double res;
     ImageD tmp;
 
     CreerImageD(&tmp, in->width, in->height);
     CopierImageD(in, &tmp);
 
-    for(int i = 0; i < in->height; i++){
-	for(int j = 0; j < in->width; j++){
+    for(int j = 0; j < in->height; j++){
+	for(int i = 0; i < in->width; i++){
 	    res = ValMirorD(in, i, j) + sqrt(calculeMiniSobel(in, i, j))*calculeK(in, i, j) * t;
 	    ModifierPixelD(out, i, j, res );
 	}
@@ -426,4 +456,12 @@ void GLWidget::closeEvent(QCloseEvent *event)
     if (isWindowOpened)
 	event->ignore();
     else event->accept();
+}
+
+void GLWidget::setLineColor(float r, float g, float b)
+{
+    lineColor[0] = r;
+    lineColor[1] = g;
+    lineColor[2] = b;
+    lineColor[3] = 1.0;
 }
